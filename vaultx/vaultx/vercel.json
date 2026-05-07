@@ -1,8 +1,0 @@
-{
-  "crons": [
-    {
-      "path": "/api/send-daily-password",
-      "schedule": "0 8 * * *"
-    }
-  ]
-}
