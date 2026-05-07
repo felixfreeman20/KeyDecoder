@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>VaultX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #2a2a3a;
+    --accent: #7c3aed;
+    --accent2: #06b6d4;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #ef4444;
+    --success: #10b981;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      repeating-linear-gradient(0deg, transparent, transparent 40px, rgba(124,58,237,0.03) 40px, rgba(124,58,237,0.03) 41px),
+      repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(124,58,237,0.03) 40px, rgba(124,58,237,0.03) 41px);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .glow {
+    position: fixed;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(124,58,237,0.08) 0%, transparent 70%);
+    top: -200px; left: -200px;
+    pointer-events: none;
+    animation: drift 8s ease-in-out infinite alternate;
+  }
+  .glow2 {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(6,182,212,0.06) 0%, transparent 70%);
+    bottom: -100px; right: -100px;
+    pointer-events: none;
+    animation: drift2 10s ease-in-out infinite alternate;
+  }
+  @keyframes drift { from { transform: translate(0,0); } to { transform: translate(80px,60px); } }
+  @keyframes drift2 { from { transform: translate(0,0); } to { transform: translate(-60px,-40px); } }
+
+  #gate, #app {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    padding: 1rem;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
+  }
+  .logo {
+    font-family: 'Orbitron', monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    text-align: center;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 4px;
+    margin-bottom: 0.25rem;
+  }
+  .tagline {
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    margin-bottom: 2rem;
+  }
+  .field-label {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+  }
+  input[type="password"], input[type="text"], textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--text);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 15px;
+    letter-spacing: 3px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus { border-color: var(--accent); }
+  textarea { letter-spacing: 1px; min-height: 100px; resize: vertical; }
+  .btn {
+    width: 100%;
+    padding: 13px;
+    border-radius: 8px;
+    border: none;
+    font-family: 'Orbitron', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 1rem;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #6d28d9);
+    color: white;
+  }
+  .btn-primary:hover { transform: translateY(-1px); filter: brightness(1.1); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-ghost {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--text); }
+  .err-msg {
+    display: none;
+    text-align: center;
+    color: var(--danger);
+    font-size: 12px;
+    letter-spacing: 1px;
+    margin-top: 12px;
+    padding: 8px;
+    background: rgba(239,68,68,0.08);
+    border-radius: 6px;
+    border: 1px solid rgba(239,68,68,0.2);
+  }
+  .tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 1.5rem;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 4px;
+    border: 1px solid var(--border);
+  }
+  .tab {
+    flex: 1;
+    padding: 8px;
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 1px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+  }
+  .tab.active { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .panel { display: none; }
+  .panel.active { display: block; }
+  .result-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 16px;
+    min-height: 60px;
+    font-size: 13px;
+    color: var(--accent2);
+    word-break: break-all;
+    white-space: pre-wrap;
+    position: relative;
+    line-height: 1.6;
+    margin-top: 8px;
+  }
+  .result-placeholder { color: var(--muted); font-size: 12px; }
+  .copy-btn {
+    position: absolute;
+    top: 8px; right: 8px;
+    padding: 4px 12px;
+    font-size: 11px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--surface);
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Share Tech Mono', monospace;
+    transition: all 0.2s;
+  }
+  .copy-btn:hover { color: var(--text); border-color: var(--accent); }
+  .header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+  }
+  .status-dot {
+    display: inline-block;
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--success);
+    margin-right: 6px;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+  .section { margin-bottom: 1.2rem; }
+  .key-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .key-pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 11px;
+    color: var(--accent2);
+    text-align: center;
+  }
+  .shake { animation: shake 0.4s ease; }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20% { transform: translateX(-8px); }
+    40% { transform: translateX(8px); }
+    60% { transform: translateX(-5px); }
+    80% { transform: translateX(5px); }
+  }
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="glow2"></div>
+
+<div id="gate">
+  <div class="card">
+    <div class="logo">VAULTX</div>
+    <div class="tagline">// encrypted communications //</div>
+    <div class="field-label">ACCESS CODE</div>
+    <input type="password" id="passInput" placeholder="enter today's code" maxlength="20" />
+    <div class="err-msg" id="errMsg">⚠ invalid access code</div>
+    <button class="btn btn-primary" onclick="tryEnter()">ENTER VAULT</button>
+  </div>
+</div>
+
+<div id="app" style="display:none; max-width:520px;">
+  <div class="card">
+    <div class="header-row">
+      <div class="logo" style="font-size:1.2rem; margin-bottom:0;">VAULTX</div>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <span style="font-size:11px;color:var(--muted);"><span class="status-dot"></span>ONLINE</span>
+        <button class="btn btn-ghost" style="width:auto;margin-top:0;padding:6px 14px;" onclick="logout()">LOCK</button>
+      </div>
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="showTab('encode')">ENCODE</button>
+      <button class="tab" onclick="showTab('decode')">DECODE</button>
+      <button class="tab" onclick="showTab('key')">CIPHER KEY</button>
+    </div>
+
+    <div class="panel active" id="panel-encode">
+      <div class="section">
+        <div class="field-label">YOUR MESSAGE</div>
+        <textarea id="encodeInput" placeholder="type your secret message..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="doEncode()" style="margin-top:0.5rem;">ENCODE →</button>
+      <div class="section" style="margin-top:1rem;">
+        <div class="field-label">ENCODED OUTPUT — send this</div>
+        <div class="result-box" id="encodeOut">
+          <button class="copy-btn" onclick="copyText('encodeOut')">copy</button>
+          <span class="result-placeholder">encoded message appears here...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-decode">
+      <div class="section">
+        <div class="field-label">PASTE ENCODED MESSAGE</div>
+        <textarea id="decodeInput" placeholder="paste encoded message here..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="doDecode()" style="margin-top:0.5rem;">DECODE →</button>
+      <div class="section" style="margin-top:1rem;">
+        <div class="field-label">DECODED MESSAGE</div>
+        <div class="result-box" id="decodeOut">
+          <button class="copy-btn" onclick="copyText('decodeOut')">copy</button>
+          <span class="result-placeholder">decoded message appears here...</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-key">
+      <div class="field-label" style="margin-bottom:8px;">HOW THE CIPHER WORKS</div>
+      <div style="font-size:12px;color:var(--muted);line-height:1.9;margin-bottom:1rem;">
+        <span style="color:var(--accent2)">layer 1</span> — each letter maps to a unique 2-char code<br>
+        <span style="color:var(--accent2)">layer 2</span> — each word is reversed<br>
+        <span style="color:var(--accent2)">layer 3</span> — words wrapped in <span style="color:var(--text)">[&nbsp;]</span> and joined with <span style="color:var(--text)">~</span>
+      </div>
+      <div class="field-label">LETTER MAP (sample)</div>
+      <div class="key-grid" id="keyDisplay"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const CIPHER = {
+  a:'qx',b:'jz',c:'vk',d:'mx',e:'tz',f:'lq',g:'rz',h:'wp',i:'yk',
+  j:'bx',k:'dq',l:'fz',m:'cx',n:'sz',o:'nq',p:'gk',q:'hz',r:'ux',
+  s:'ek',t:'aw',u:'oz',v:'iq',w:'yp',x:'km',y:'wz',z:'px'
+};
+const RCIPHER = {};
+Object.entries(CIPHER).forEach(([k,v]) => RCIPHER[v] = k);
+
+function getDailyPassword() {
+  const now = new Date();
+  const seed = now.getFullYear() * 10000 + (now.getMonth()+1) * 100 + now.getDate();
+  const words = ['NOVA','PRISM','ECHO','FLUX','CIPHER','GHOST','NEON','ORBIT','PIXEL','ROGUE','STATIC','VENOM','ZENITH','QUASAR','PHANTOM'];
+  const nums = ['007','13','42','99','404','777','21','88'];
+  const w = words[seed % words.length];
+  const n = nums[Math.floor(seed/words.length) % nums.length];
+  return w + n;
+}
+
+const TODAY_PASS = getDailyPassword();
+
+function tryEnter() {
+  const val = document.getElementById('passInput').value.toUpperCase().trim();
+  if (val === TODAY_PASS) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    buildKeyDisplay();
+  } else {
+    const card = document.querySelector('#gate .card');
+    card.classList.remove('shake');
+    void card.offsetWidth;
+    card.classList.add('shake');
+    document.getElementById('errMsg').style.display = 'block';
+    document.getElementById('passInput').value = '';
+  }
+}
+document.getElementById('passInput').addEventListener('keydown', e => { if(e.key==='Enter') tryEnter(); });
+
+function logout() {
+  document.getElementById('gate').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('passInput').value = '';
+  document.getElementById('errMsg').style.display = 'none';
+}
+
+function encode(text) {
+  return text.toLowerCase().split(' ').map(word => {
+    let enc = '';
+    for (let ch of word) enc += CIPHER[ch] || ch;
+    return '[' + enc.split('').reverse().join('') + ']';
+  }).join('~');
+}
+
+function decode(text) {
+  try {
+    return text.split('~').map(chunk => {
+      let inner = chunk.replace(/^\[|\]$/g,'');
+      let rev = inner.split('').reverse().join('');
+      let out = '', i = 0;
+      while (i < rev.length) {
+        if (i+1 < rev.length && RCIPHER[rev[i]+rev[i+1]]) { out += RCIPHER[rev[i]+rev[i+1]]; i+=2; }
+        else { out += rev[i]; i++; }
+      }
+      return out;
+    }).join(' ');
+  } catch(e) { return '✗ could not decode — check format'; }
+}
+
+function doEncode() {
+  const txt = document.getElementById('encodeInput').value.trim();
+  if (!txt) return;
+  setResult('encodeOut', encode(txt));
+}
+function doDecode() {
+  const txt = document.getElementById('decodeInput').value.trim();
+  if (!txt) return;
+  setResult('decodeOut', decode(txt));
+}
+function setResult(id, text) {
+  const box = document.getElementById(id);
+  box.innerHTML = '<button class="copy-btn" onclick="copyText(\''+id+'\')">copy</button>' + text;
+}
+function copyText(id) {
+  const box = document.getElementById(id);
+  const btn = box.querySelector('.copy-btn');
+  const text = box.innerText.replace(/^copy/,'').trim();
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = '✓ copied';
+    setTimeout(() => btn.textContent = 'copy', 1500);
+  });
+}
+function showTab(name) {
+  const names = ['encode','decode','key'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i]===name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+function buildKeyDisplay() {
+  const display = document.getElementById('keyDisplay');
+  display.innerHTML = Object.entries(CIPHER).slice(0,15).map(([k,v]) =>
+    `<div class="key-pill">${k} → ${v}</div>`
+  ).join('') + '<div class="key-pill" style="color:var(--muted)">+11 more</div>';
+}
+</script>
+</body>
+</html>
